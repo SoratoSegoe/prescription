@@ -92,6 +92,7 @@ button{font-family:inherit;cursor:pointer;}
   position:absolute;top:0;left:0;right:0;height:3px;
   background:var(--line);z-index:6;opacity:0;transition:opacity .3s;
 }
+.trace[data-on="1"]{opacity:1;}
 .trace__fill{height:100%;width:0;background:linear-gradient(90deg,var(--vital),var(--vital-deep));
   transition:width .5s var(--ease);}
 
@@ -275,7 +276,7 @@ button{font-family:inherit;cursor:pointer;}
 .analyze p{color:var(--ink-3);font-size:.9rem;margin:0;}
 
 /* =========================================================
-   Report
+   Report & BMI Section
    ========================================================= */
 .report{max-width:880px;margin:0 auto;width:100%;}
 .sheet{
@@ -291,8 +292,40 @@ button{font-family:inherit;cursor:pointer;}
 .sheet__head .sub{font-family:var(--mono);font-size:.72rem;color:var(--ink-3);letter-spacing:.18em;}
 .sheet__meta-r{text-align:right;font-family:var(--mono);font-size:.72rem;color:var(--ink-3);line-height:1.7;}
 
+/* Profile Basic Data Re-display Grid */
+.profile-summary-box{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--line);border-bottom:1px solid var(--line);
+}
+.profile-summary-box div{background:var(--card-2);padding:.85rem 1rem;}
+.profile-summary-box .k{font-size:.68rem;color:var(--ink-3);font-weight:700;letter-spacing:.04em;}
+.profile-summary-box .v{font-weight:700;font-size:1.05rem;color:var(--ink);margin-top:.15em;}
+
+/* Custom Horizontal BMI Gauge */
+.bmi-section{
+  padding:22px clamp(20px,4vw,34px);
+  background:#f6f8f6;border-bottom:1px solid var(--line);
+}
+.bmi-title-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
+.bmi-title-row h3{font-size:1rem;font-weight:700;margin:0;color:var(--ink);}
+.bmi-title-row .bmi-num{font-family:var(--mono);font-size:1.6rem;font-weight:900;color:var(--vital);}
+.bmi-title-row .bmi-num small{font-size:.8rem;font-weight:500;color:var(--ink-2);margin-left:2px;}
+.bmi-status-lbl{font-weight:700;padding:.2em .6em;border-radius:4px;font-size:.75rem;margin-left:8px;vertical-align:middle;}
+.bmi-status-lbl.ideal{background:var(--vital-soft);color:var(--vital-deep);}
+.bmi-status-lbl.warning{background:#fdf2e9;color:var(--signal);}
+
+.bmi-axis-container{position:relative;margin-top:10px;padding-bottom:20px;}
+.bmi-bar-track{height:12px;border-radius:99px;background:linear-gradient(90deg, #99c2b1 0%, #1f6f50 35%, #1f6f50 65%, #d8593b 100%);position:relative;}
+.bmi-pointer{
+  position:absolute;top:-5px;width:14px;height:22px;
+  background:var(--ink);border:2px solid #fff;border-radius:3px;
+  transform:translateX(-50%);box-shadow:0 2px 6px rgba(0,0,0,0.3);
+  transition:left 1s var(--ease);
+}
+.bmi-labels{display:flex;justify-content:space-between;font-size:.68rem;color:var(--ink-3);font-family:var(--mono);margin-top:6px;}
+
 .vitals{
-  display:grid;grid-template-columns:repeat(5,1fr);gap:1px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
   background:var(--line);border-bottom:1px solid var(--line);
 }
 .vitals div{background:var(--card-2);padding:.95rem 1rem;}
@@ -360,6 +393,17 @@ button{font-family:inherit;cursor:pointer;}
 .advice h3{font-size:.78rem;font-weight:700;color:var(--vital-deep);margin:0 0 .6em;display:flex;align-items:center;gap:.5em;}
 .advice p{font-size:.9rem;line-height:1.95;color:var(--ink);margin:0;font-weight:500;}
 
+/* Closing Call To Action Section */
+.closing-cta{
+  margin:0 clamp(20px,4vw,34px) clamp(22px,4vw,30px);
+  padding:clamp(20px,4vw,30px);
+  background:linear-gradient(135deg, #f0faf5 0%, #e6f4ed 100%);
+  border:1px dashed var(--vital);border-radius:var(--r);
+  text-align:center;
+}
+.closing-cta h3{font-family:var(--serif);font-size:1.2rem;color:var(--vital-deep);margin:0 0 .6rem;}
+.closing-cta p{font-size:.92rem;line-height:1.7;color:var(--ink-2);margin:0 0 1.4rem;}
+
 .disclaimer{
   padding:0 clamp(20px,4vw,34px) clamp(22px,4vw,30px);
   font-size:.72rem;line-height:1.8;color:var(--ink-3);
@@ -389,8 +433,8 @@ button{font-family:inherit;cursor:pointer;}
 
 @media (max-width:680px){
   .grid2{grid-template-columns:1fr 1fr;}
-  .vitals{grid-template-columns:repeat(3,1fr);}
-  .vitals div:nth-child(4),.vitals div:nth-child(5){border-top:1px solid var(--line);}
+  .profile-summary-box{grid-template-columns:1fr 1fr;gap:1px;}
+  .vitals{grid-template-columns:1fr 1fr 1fr;}
   .diag{grid-template-columns:1fr;}
   .radar{max-width:260px;}
   .week{grid-template-columns:repeat(4,1fr);}
@@ -421,7 +465,6 @@ let userProfile = { age:'', gender:'', height:'', weight:'', habit:'' };
 let currentQuestion = 0;
 let scores = { body:0, stamina:0, mind:0 };
 
-// Total 16 questions: body(5), stamina(5), mind(6)
 const questions = [
   /* 筋骨格 - 5問 (Max 25) */
   { text:"重い買い物袋や荷物を運ぶ作業は、あまり苦にならない。", axis:"body", desc:"日常の筋力・パワー" },
@@ -506,7 +549,7 @@ function render(html, after){
   },350);
 }
 function setTrace(on,pct){
-  trace.dataset.on = on ? '1':'0';
+  trace.setAttribute('data-on', on ? '1':'0');
   if(pct!=null) traceFill.style.width = pct+'%';
 }
 function toast(msg){
@@ -592,7 +635,7 @@ function submitProfile(e){
   const f=id=>document.getElementById(id).value.trim();
   const age=f('p_age'),gender=f('p_gender'),height=f('p_height'),weight=f('p_weight'),habit=f('p_habit');
   if(!age||!gender||!height||!weight||!habit){ toast('すべての項目を入力してください'); return; }
-  userProfile={age,gender,height,weight,habit};
+  userProfile={age:parseInt(age,10),gender,height:parseFloat(height),weight:parseFloat(weight),habit};
   currentQuestion=0; scores={body:0,stamina:0,mind:0};
   setTrace(true,0);
   renderQuestion();
@@ -668,8 +711,6 @@ function renderAnalyzing(){
 }
 
 function calculateResult(){
-  // 16問対応（Body: 5問/満点25, Stamina: 5問/満点25, Mind: 6問/満点30）
-  // 基準値を中央値付近（Body/Staminaは15以上、Mindは18以上をH/A/Cと判定）
   const b = scores.body    >= 15 ? 'H' : 'S';
   const a = scores.stamina >= 15 ? 'A' : 'R';
   const m = scores.mind    >= 18 ? 'C' : 'N';
@@ -681,7 +722,6 @@ function radarSVG(){
   const cx=150,cy=150,R=104;
   const ang={body:-90,stamina:150,mind:30};
   
-  // 各軸の質問数に応じた正規化（Body:5問x5点=25, Stamina:5問x5点=25, Mind:6問x5点=30）
   const norm = (s, axis) => {
     const max = axis === 'mind' ? 30 : 25;
     const min = axis === 'mind' ? 6 : 5;
@@ -690,153 +730,180 @@ function radarSVG(){
 
   const pt=(deg,t)=>{const r=deg*Math.PI/180;return[cx+R*t*Math.cos(r),cy+R*t*Math.sin(r)];};
   const axisEnd=deg=>{const r=deg*Math.PI/180;return[cx+R*Math.cos(r),cy+R*Math.sin(r)];};
-  // rings
+  
   let rings='';
   [0.25,0.5,0.75,1].forEach(t=>{
-    const p=Object.values(ang).map(d=>pt(d,t).join(',')).join(' ');
-    rings+=`<polygon class="ring" points="${p}"/>`;
+    const p1=pt(ang.body,t), p2=pt(ang.stamina,t), p3=pt(ang.mind,t);
+    rings+=`<polygon class="ring" points="${p1[0]},${p1[1]} ${p2[0]},${p2[1]} ${p3[0]},${p3[1]}" />`;
   });
-  // axes
-  let axes='';
-  Object.values(ang).forEach(d=>{const e=axisEnd(d);axes+=`<line class="grid-line" x1="${cx}" y1="${cy}" x2="${e[0]}" y2="${e[1]}"/>`;});
-  // shape
-  const sp=[pt(ang.body,norm(scores.body, 'body')),pt(ang.stamina,norm(scores.stamina, 'stamina')),pt(ang.mind,norm(scores.mind, 'mind'))];
-  const shape=`<polygon class="shape" points="${sp.map(p=>p.join(',')).join(' ')}"/>`;
-  const verts=sp.map(p=>`<circle class="vtx" cx="${p[0]}" cy="${p[1]}" r="4"/>`).join('');
-  // labels
-  const lbl=(deg,text,val,color,dy)=>{const e=axisEnd(deg);const r=deg*Math.PI/180;
-    const lx=cx+(R+26)*Math.cos(r),ly=cy+(R+24)*Math.sin(r);
-    let anchor = "middle";
-    if (Math.cos(r) > 0.1) anchor = "start";
-    if (Math.cos(r) < -0.1) anchor = "end";
-    return `<text class="axis-label" x="${lx}" y="${ly+dy}" text-anchor="${anchor}">${text} <tspan class="axis-val" fill="${color}">(${val})</tspan></text>`;
-  };
+
+  const vBody = norm(scores.body,'body'), vStam = norm(scores.stamina,'stamina'), vMind = norm(scores.mind,'mind');
+  const g1=pt(ang.body,vBody), g2=pt(ang.stamina,vStam), g3=pt(ang.mind,vMind);
+  
+  const eBody=axisEnd(ang.body), eStam=axisEnd(ang.stamina), eMind=axisEnd(ang.mind);
 
   return `
-    <svg class="radar drawn" viewBox="0 0 300 300" aria-hidden="true">
-      ${rings} ${axes} ${shape} ${verts}
-      ${lbl(ang.body,"筋骨格",scores.body,"var(--axis-body)",-2)}
-      ${lbl(ang.stamina,"心肺機能",scores.stamina,"var(--axis-stamina)",4)}
-      ${lbl(ang.mind,"認知機能",scores.mind,"var(--axis-mind)",4)}
+    <svg class="radar" viewBox="0 0 300 300">
+      <line class="grid-line" x1="${cx}" y1="${cy}" x2="${eBody[0]}" y2="${eBody[1]}" />
+      <line class="grid-line" x1="${cx}" y1="${cy}" x2="${eStam[0]}" y2="${eStam[1]}" />
+      <line class="grid-line" x1="${cx}" y1="${cy}" x2="${eMind[0]}" y2="${eMind[1]}" />
+      ${rings}
+      <polygon class="shape" points="${g1[0]},${g1[1]} ${g2[0]},${g2[1]} ${g3[0]},${g3[1]}" />
+      <circle class="vtx" cx="${g1[0]}" cy="${g1[1]}" r="4" />
+      <circle class="vtx" cx="${g2[0]}" cy="${g2[1]}" r="4" />
+      <circle class="vtx" cx="${g3[0]}" cy="${g3[1]}" r="4" />
+      <text class="axis-label" x="${eBody[0]}" y="${eBody[1]-12}" text-anchor="middle">筋骨格</text>
+      <text class="axis-val" x="${eBody[0]}" y="${eBody[1]-2}" text-anchor="middle">${scores.body}</text>
+      <text class="axis-label" x="${eStam[0]-14}" y="${eStam[1]+4}" text-anchor="end">心肺機能</text>
+      <text class="axis-val" x="${eStam[0]-14}" y="${eStam[1]+16}" text-anchor="end">${scores.stamina}</text>
+      <text class="axis-label" x="${eMind[0]+14}" y="${eMind[1]+4}" text-anchor="start">認知機能</text>
+      <text class="axis-val" x="${eMind[0]+14}" y="${eMind[1]+16}" text-anchor="start">${scores.mind}</text>
     </svg>
   `;
 }
 
-function renderReport(key){
+function renderReport(typeKey){
   setTrace(false);
-  const data = resultsData[key] || resultsData["SRN"];
-  const hM = parseFloat(userProfile.height)/100;
-  const bmi = (parseFloat(userProfile.weight)/(hM*hM)).toFixed(1);
-  const dateStr = new Date().toLocaleDateString('ja-JP');
+  const r = resultsData[typeKey] || resultsData["SRN"];
+  const d = new Date();
+  const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
 
-  // 年齢別BMI目標範囲の計算 (厚労省ガイドライン準拠)
-  const ageNum = parseInt(userProfile.age, 10);
-  let bmiMin = 18.5, bmiMax = 24.9;
-  if(ageNum >= 50 && ageNum <= 64) { bmiMin = 20.0; }
-  else if(ageNum >= 65 && ageNum <= 74) { bmiMin = 21.5; }
-  else if(ageNum >= 75) { bmiMin = 21.5; bmiMax = 25.5; }
+  // BMI Calculation
+  const hMeter = userProfile.height / 100;
+  const bmi = (userProfile.weight / (hMeter * hMeter)).toFixed(1);
+  const bmiNum = parseFloat(bmi);
 
-  let bmiStatus = "目標範囲内（適正）";
-  if(bmi < bmiMin) bmiStatus = "目標以下（筋肉量減少に注意）";
-  if(bmi > bmiMax) bmiStatus = "目標以上（過体重に注意）";
+  // Determine Age-Appropriate BMI Range (Based on Ministry of Health, Labour and Welfare guidelines)
+  let minIdeal = 18.5, maxIdeal = 24.9;
+  if (userProfile.age >= 50 && userProfile.age <= 64) { minIdeal = 20.0; maxIdeal = 24.9; } 
+  else if (userProfile.age >= 65) { minIdeal = 21.5; maxIdeal = 24.9; }
 
-  // バー表示用のパーセンテージ計算 (Body:25, Stamina:25, Mind:30満点)
-  const pctB = (scores.body / 25) * 100;
-  const pctS = (scores.stamina / 25) * 100;
-  const pctM = (scores.mind / 30) * 100;
+  let bmiStatusText = "";
+  let bmiClass = "ideal";
+  if (bmiNum < minIdeal) { bmiStatusText = "やせすぎ（低体重）"; bmiClass = "warning"; } 
+  else if (bmiNum > maxIdeal) { bmiStatusText = "太りすぎ（肥満）"; bmiClass = "warning"; } 
+  else { bmiStatusText = "適正（理想的）"; bmiClass = "ideal"; }
+
+  // Map BMI to Pointer Position (Min 15 to Max 30 on the bar scale)
+  const mapMin = 15, mapMax = 32;
+  let pct = ((bmiNum - mapMin) / (mapMax - mapMin)) * 100;
+  if(pct < 3) pct = 3; if(pct > 97) pct = 97;
 
   render(`
-    <div class="report">
+    <div class="report enter-active">
       <div class="sheet">
         <div class="sheet__head">
           <div>
-            <span class="sub">PERSONAL EXERCISE REPORT</span>
-            <h1>からだカルテ診断結果</h1>
+            <span class="sub">PHYSICAL ASSESSMENT REPORT</span>
+            <h1>運動タイプ診断結果</h1>
           </div>
           <div class="sheet__meta-r">
-            <div>発行日: ${dateStr}</div>
-            <div>分析機体コード: ${key}</div>
+            DATE: ${dateStr}<br>
+            ID: RE-${Math.floor(100000+Math.random()*900000)}
+          </div>
+        </div>
+
+        <div class="profile-summary-box">
+          <div><span class="k">年齢</span><div class="v">${userProfile.age} <small style="font-size:0.75rem; font-weight:500;">歳</small></div></div>
+          <div><span class="k">性別</span><div class="v">${userProfile.gender}</div></div>
+          <div><span class="k">体格データ</span><div class="v">${userProfile.height}cm / ${userProfile.weight}kg</div></div>
+          <div><span class="k">現在の習慣</span><div class="v">${userProfile.habit}</div></div>
+        </div>
+
+        <div class="bmi-section">
+          <div class="bmi-title-row">
+            <h3>現在のあなたのBMI値</h3>
+            <div>
+              <span class="bmi-num">${bmi}<small>BMI</small></span>
+              <span class="bmi-status-lbl ${bmiClass}">${bmiStatusText}</span>
+            </div>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--ink-2); margin-bottom: 8px;">
+            ※ あなたの年齢（${userProfile.age}歳）の目標適正範囲は <b>${minIdeal} 〜 ${maxIdeal}</b> です。
+          </div>
+          <div class="bmi-axis-container">
+            <div class="bmi-bar-track">
+              <div class="bmi-pointer" style="left: ${pct}%;"></div>
+            </div>
+            <div class="bmi-labels">
+              <span>15.0 (やせ)</span>
+              <span style="position:absolute; left:30%; transform:translateX(-50%); text-align:center;">${minIdeal} (適正下限)</span>
+              <span style="position:absolute; left:62%; transform:translateX(-50%); text-align:center;">${maxIdeal} (適正上限)</span>
+              <span>32.0 (肥満)</span>
+            </div>
           </div>
         </div>
 
         <div class="vitals">
-          <div><span class="k">年齢</span><div class="v">${userProfile.age}<small>歳</small></div></div>
-          <div><span class="k">性別</span><div class="v">${userProfile.gender}</div></div>
-          <div><span class="k">身長</span><div class="v">${userProfile.height}<small>cm</small></div></div>
-          <div><span class="k">体重</span><div class="v">${userProfile.weight}<small>kg</small></div></div>
-          <div><span class="k">現在BMI</span><div class="v" style="color:var(--vital);">${bmi}</div></div>
+          <div><span class="k">筋骨格スコア</span><div class="v">${scores.body} <small>/ 25</small></div></div>
+          <div><span class="k">心肺機能スコア</span><div class="v">${scores.stamina} <small>/ 25</small></div></div>
+          <div><span class="k">認知機能スコア</span><div class="v">${scores.mind} <small>/ 30</small></div></div>
         </div>
 
         <div class="diag">
           <div class="diag__type">
-            <span class="chip">TYPE ANALYTICS</span>
-            <p class="role-sub">${data.subtitle}</p>
-            <h2>${data.title}</h2>
-            <p>${data.feature}</p>
+            <span class="chip">${typeKey} TYPE</span>
+            <div class="role-sub">${r.subtitle}</div>
+            <h2>${r.title}</h2>
+            <p>${r.feature}</p>
           </div>
           <div>
             ${radarSVG()}
           </div>
         </div>
 
-        <div class="bars">
-          <div class="bar">
-            <div class="bar__top"><span class="nm">筋骨格系出力（立ち上がり・移動の力）</span><span class="vl">${scores.body} / 25</span></div>
-            <div class="track"><div class="meter" style="width:${pctB}%; background:var(--axis-body);"></div></div>
-          </div>
-          <div class="bar">
-            <div class="bar__top"><span class="nm">心肺持久力（スタミナ・日常の息切れ）</span><span class="vl">${scores.stamina} / 25</span></div>
-            <div class="track"><div class="meter" style="width:${pctS}%; background:var(--axis-stamina);"></div></div>
-          </div>
-          <div class="bar">
-            <div class="bar__top"><span class="nm">認知プロセシング（脳の冴え・マルチタスク）</span><span class="vl">${scores.mind} / 30</span></div>
-            <div class="track"><div class="meter" style="width:${pctM}%; background:var(--axis-mind);"></div></div>
-          </div>
-        </div>
-
-        <span class="section-label">年齢別目標範囲とBMI評価</span>
-        <div style="padding:0 clamp(20px,4vw,34px) clamp(22px,4vw,30px); font-size:0.9rem; line-height:1.7;">
-          <p style="margin:0 0 0.5rem;">あなたの年齢（${userProfile.age}歳）の目標BMI範囲は <b>${bmiMin} 〜 ${bmiMax}</b> です。</p>
-          <p style="margin:0; font-weight:700; color:var(--vital-deep);">判定：${bmiStatus}</p>
-        </div>
-
-        <span class="section-label">的確に組まれた1週間の運動ガイド</span>
+        <span class="section-label">1-WEEK OPTIMIZED PLAN</span>
         <div class="week">
-          <div class="day"><span class="dh">MON</span><span class="dm">${data.menu.mon}</span></div>
-          <div class="day"><span class="dh">TUE</span><span class="dm">${data.menu.tue}</span></div>
-          <div class="day ${data.menu.wed.includes('休息')?'rest':''}"><span class="dh">WED</span><span class="dm">${data.menu.wed}</span></div>
-          <div class="day ${data.menu.thu.includes('休息')?'rest':''}"><span class="dh">THU</span><span class="dm">${data.menu.thu}</span></div>
-          <div class="day"><span class="dh">FRI</span><span class="dm">${data.menu.fri}</span></div>
-          <div class="day"><span class="dh">SAT</span><span class="dm">${data.menu.sat}</span></div>
-          <div class="day"><span class="dh">SUN</span><span class="dm">${data.menu.sun}</span></div>
+          <div class="day"><span class="dh">MON</span><span class="dm">${r.menu.mon}</span></div>
+          <div class="day"><span class="dh">TUE</span><span class="dm">${r.menu.tue}</span></div>
+          <div class="day"><span class="dh">WED</span><span class="dm">${r.menu.wed}</span></div>
+          <div class="day"><span class="dh">THU</span><span class="dm">${r.menu.thu}</span></div>
+          <div class="day"><span class="dh">FRI</span><span class="dm">${r.menu.fri}</span></div>
+          <div class="day.rest"><span class="dh">SAT</span><span class="dm">${r.menu.sat}</span></div>
+          <div class="day.rest"><span class="dh">SUN</span><span class="dm">${r.menu.sun}</span></div>
         </div>
 
         <div class="advice">
-          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>今後へのアクションアドバイス</h3>
-          <p>${data.advice}</p>
+          <h3>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            今後のアプローチ方針
+          </h3>
+          <p>${r.advice}</p>
+        </div>
+
+        <div class="closing-cta">
+          <h3>小さな一歩が、明日のあなたを変える切符です</h3>
+          <p>
+            今のあなたのBMIや運動傾向は、これまでのライフスタイルが育んできた大切な個性のひとつ。完璧を目指す必要はありません。<br>
+            この「1週間プラン」の中から、まずは1つだけ、今日か明日に試してみませんか？身体は動かした分だけ確実に、心地よいサインを返してくれます。<br><br>
+            <b>💡 プランをいつでも見返せるように！</b><br>
+            このまま公式LINEの登録を継続していただくと、あなたのタイプに合わせた毎日の簡単な運動リマインダーや、体型管理のアドバイスを定期的にお届けします。一緒に楽しく、健康な習慣を育んでいきましょう！
+          </p>
+          <a href="https://line.me/R/" target="_blank" class="line-btn" style="max-width:340px; margin:0 auto;">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 10.304c0-5.369-5.383-9.738-12-9.738-6.616 0-12 4.369-12 9.738 0 4.814 4.269 8.846 10.036 9.608.391.084.922.258 1.058.592.121.303.079.778.039 1.084l-.171 1.027c-.052.303-.251 1.184 1.081.646 1.333-.537 7.177-4.226 9.799-7.238C23.194 14.708 24 12.632 24 10.304zm-14.76 3.193h-1.9v-4.46a.715.715 0 0 0-.714-.714.715.715 0 0 0-.714.714v5.174c0 .394.32.714.714.714h3.314c.394 0 .714-.32.714-.714a.715.715 0 0 0-.714-.714zm3.822 0h-2.016v-4.46a.715.715 0 0 0-.714-.714.715.715 0 0 0-.714.714v5.174c0 .394.32.714.714.714h2.73c.395 0 .714-.32.714-.714a.716.716 0 0 0-.714-.714zm5.13-4.46a.715.715 0 0 0-.714-.714h-.006a.715.715 0 0 0-.714.714v2.713l-2.453-3.23a.719.719 0 0 0-.612-.297h-.01a.713.713 0 0 0-.704.721v5.174c0 .394.32.714.714.714h.007a.715.715 0 0 0-.714-.714v-2.733l2.463 3.243c.121.161.312.257.514.257h.005a.714.714 0 0 0 .714-.714v-5.144zm4.49 1.428h-1.89v1.077h1.89c.394 0 .714-.32.714-.714a.715.715 0 0 0-.714-.714zm0-1.428h-1.89v1.042h1.89c.394 0 .714-.32.714-.714a.715.715 0 0 0-.714-.714zm0 2.856h-1.89v1.09h1.89c.394 0 .714-.32.714-.714a.715.715 0 0 0-.714-.714z"/></svg>
+            LINEを継続してアドバイスを受け取る
+          </a>
         </div>
 
         <div class="disclaimer">
-          <p style="margin:0;">※本判定は統計的なスクリーニングを目的とした運動傾向分析であり、特定の医療行為や診断、処方を代替するものではありません。健康増進のための指標としてご活用ください。</p>
+          本診断は簡易的なスクリーニングであり、医学的診断に代わるものではありません。新しい運動プログラムを開始する際、持病のある方は必ず医師にご相談ください。
         </div>
       </div>
 
       <div class="actions">
-        <a href="https://line.me/R/ti/p/@YOUR_LINE_ID" target="_blank" rel="noopener noreferrer" class="line-btn">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.52 2 9.87c0 2.42 1.39 4.57 3.56 5.92-.15.56-.54 2.22-.62 2.54-.09.39.15.39.31.28.13-.09 2.11-1.43 2.95-2.01.58.16 1.18.25 1.8.25 5.52 0 10-3.52 10-7.87S17.52 2 12 2z"/></svg>
-          プレミアム配信サービス（LINE公式）を登録する
-        </a>
         <div class="sub-row">
-          <button class="btn btn-ghost" onclick="renderProfile()">基本情報をやり直す</button>
-          <button class="btn btn-ghost" onclick="renderStart()">最初に戻る</button>
+          <button class="btn-ghost" onclick="renderProfile()">基本情報をやり直す</button>
+          <button class="btn-ghost" onclick="window.print()">結果を保存 (印刷)</button>
         </div>
       </div>
     </div>
   `);
 }
 
-// 初期起動
-window.addEventListener('DOMContentLoaded', renderStart);
+// Start tracking app initialized
+window.addEventListener('DOMContentLoaded', () => {
+  renderStart();
+});
 </script>
 </body>
 </html>
