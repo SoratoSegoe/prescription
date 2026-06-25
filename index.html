@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>個別運動処方システム | からだカルテ診断</title>
+    <title>個別運動プログラム | からだカルテ診断</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
@@ -28,9 +28,15 @@
     </script>
     <style>
         body { background-color: #e2e8f0; }
-        .fade-enter { opacity: 0; transform: translateY(20px) scale(0.98); }
-        .fade-enter-active { opacity: 1; transform: translateY(0) scale(1); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-        .fade-exit-active { opacity: 0; transform: translateY(-20px) scale(0.98); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* アニメーションのバグを防ぐため、シンプルなフェードインに修正 */
+        .fade-in-view {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         
         .choice-btn { transition: all 0.2s ease; border: 2px solid transparent; }
         .choice-btn:hover { border-color: #2563eb; background-color: #eff6ff; transform: translateX(5px); }
@@ -63,13 +69,13 @@
 </head>
 <body class="min-h-screen w-full flex items-center justify-center p-2 sm:p-4 text-gray-800">
 
-    <div id="app" class="w-full min-h-[95vh] sm:min-h-[85vh] max-w-5xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col relative overflow-hidden">
+    <div id="app" class="w-full min-h-[90vh] max-w-5xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col relative overflow-hidden">
         
         <div id="progress-container" class="hidden w-full bg-gray-100 h-2 absolute top-0 left-0 z-10">
             <div id="progress-bar" class="bg-primary h-2 transition-all duration-500 w-0"></div>
         </div>
 
-        <div id="content" class="flex-1 flex flex-col w-full p-5 md:p-12 overflow-y-auto">
+        <div id="content" class="flex-1 flex flex-col w-full p-5 md:p-12 overflow-y-auto justify-center items-center">
             </div>
 
     </div>
@@ -104,7 +110,7 @@
             },
             "HAN": { title: "ラグビーフォワード", subtitle: "スタミナとパワーで突き進む切り込み隊長",
                 feature: "体力と突進力は群を抜いていますが、細かいことは気にしないおおらかな気質を持ちます。",
-                menu: { mon: "有酸素運動(ジョギング)", tue: "筋力トレーニング(体幹)", wed: "休息日", thu: "ステップ運動/エアロビ", fri: "アクティブレスト", sat: "チームスポーツ参加", sun: "脳トレ＋軽い散歩" },
+                menu: { mon: "ジョギング", tue: "筋力トレーニング(体幹)", wed: "休息日", thu: "ステップ運動/エアロビ", fri: "アクティブレスト", sat: "チームスポーツ参加", sun: "脳トレ＋軽い散歩" },
                 advice: "身体のタフさは素晴らしいですが、脳の疲労感に気づきにくい傾向があります。複雑な動きを伴う運動で脳に心地よい刺激を与えましょう。"
             },
             "HRC": { title: "スプリンター", subtitle: "一瞬の爆発力と鋭い戦術で魅せるパワー型",
@@ -130,239 +136,7 @@
             "SRC": { title: "ゴルファー", subtitle: "緻密な計算と集中力で勝負する精密機械",
                 feature: "体力勝負より、冷静な分析力と高い集中力で効率よく身体をコントロールする知性派です。",
                 menu: { mon: "デスクワーク合間ストレッチ", tue: "1回5分のプチ筋トレ", wed: "姿勢改善エクササイズ", thu: "休息日", fri: "ウォーキング", sat: "バランスボール", sun: "マインドフルネス瞑想" },
-                advice: "頭脳労働による首や肩の緊張が懸念されます。激しい運動ではなく、姿勢を正し、血流を改善するためのこまめなストレッチが処方箋となります。"
+                advice: "頭脳労働による首や肩の緊張が懸念されます。激しい運動ではなく、姿勢を正し、血流を改善するためのこまめなストレッチがガイドとなります。"
             },
             "SRN": { title: "ウォーカー", subtitle: "心地よさを最優先する無理のない脱力系",
-                feature: "激しいスポーツは苦手。お散歩感覚でゆったり心地よく身体を動かすのが合っているマイペース派。",
-                menu: { mon: "深呼吸と朝ののび", tue: "近所を10分お散歩", wed: "休息日", thu: "湯船にゆっくり浸かる", fri: "寝る前の軽い柔軟", sat: "お出かけ（買い物等）", sun: "完全リラックス" },
-                advice: "今は「運動」と構える必要はありません。まずは日常生活の中で「少し歩く」「深く呼吸する」といった超低負荷な習慣から身体を慣らしましょう。"
-            }
-        };
-
-        const contentDiv = document.getElementById('content');
-        const progressContainer = document.getElementById('progress-container');
-        const progressBar = document.getElementById('progress-bar');
-
-        function render(html, callback) {
-            contentDiv.classList.add('fade-exit-active');
-            setTimeout(() => {
-                contentDiv.innerHTML = html;
-                contentDiv.classList.remove('fade-exit-active');
-                contentDiv.classList.add('fade-enter-active');
-                if(callback) callback();
-                setTimeout(() => { contentDiv.classList.remove('fade-enter-active'); }, 500);
-            }, 400);
-        }
-
-        function renderStart() {
-            progressContainer.classList.add('hidden');
-            const html = `
-                <div class="m-auto text-center max-w-2xl">
-                    <span class="inline-block py-1 px-3 rounded-full bg-blue-100 text-primary text-sm font-bold tracking-widest mb-6">PHYSICAL & MIND ANALYSIS</span>
-                    <h1 class="text-3xl md:text-5xl font-black text-gray-900 mb-6 leading-tight tracking-tight">
-                        からだカルテ診断<br><span class="text-primary">個別運動処方</span>システム
-                    </h1>
-                    <p class="text-gray-500 mb-10 text-base md:text-lg leading-relaxed">
-                        12個の科学的質問と基本情報から、あなたの「筋骨格・心肺・認知機能」を多角的に分析。<br class="hidden md:block">
-                        8つの身体タイプ分類に基づく、<b>あなただけの詳細な運動処方箋</b>を即座に発行します。
-                    </p>
-                    <button onclick="renderProfile()" class="group relative inline-flex items-center justify-center w-full md:w-auto px-12 py-5 text-lg font-bold text-white transition-all duration-200 bg-primary rounded-full hover:bg-primaryDark hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                        分析をはじめる
-                        <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </button>
-                </div>
-            `;
-            render(html);
-        }
-
-        function renderProfile() {
-            const html = `
-                <div class="m-auto w-full max-w-xl">
-                    <div class="mb-8 text-center">
-                        <h2 class="text-2xl font-bold text-gray-900">基本情報の入力</h2>
-                        <p class="text-gray-500 text-sm mt-2">より正確な処方箋とBMI分析を行うために使用します。</p>
-                    </div>
-                    <form id="profileForm" onsubmit="submitProfile(event)" class="space-y-6 bg-surface p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1">年齢</label>
-                                <div class="relative">
-                                    <input type="number" id="p_age" required min="18" max="120" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-lg" placeholder="例: 55">
-                                    <span class="absolute right-4 top-3.5 text-gray-400">歳</span>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1">性別</label>
-                                <select id="p_gender" required class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-lg bg-white">
-                                    <option value="">選択...</option>
-                                    <option value="男性">男性</option>
-                                    <option value="女性">女性</option>
-                                    <option value="その他">その他/回答しない</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1">身長</label>
-                                <div class="relative">
-                                    <input type="number" id="p_height" required min="100" max="250" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-lg" placeholder="例: 165">
-                                    <span class="absolute right-4 top-3.5 text-gray-400">cm</span>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1">体重</label>
-                                <div class="relative">
-                                    <input type="number" id="p_weight" required min="30" max="200" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-lg" placeholder="例: 60">
-                                    <span class="absolute right-4 top-3.5 text-gray-400">kg</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">現在の運動習慣</label>
-                            <select id="p_habit" required class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-lg bg-white">
-                                <option value="">選択してください</option>
-                                <option value="全くなし">全くなし</option>
-                                <option value="週1〜2回">週1〜2回程度</option>
-                                <option value="週3回以上">週3回以上</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-xl shadow-md transition-colors text-lg mt-4">
-                            診断へ進む
-                        </button>
-                    </form>
-                </div>
-            `;
-            render(html);
-        }
-
-        function submitProfile(e) {
-            e.preventDefault();
-            userProfile.age = parseInt(document.getElementById('p_age').value);
-            userProfile.gender = document.getElementById('p_gender').value;
-            userProfile.height = parseFloat(document.getElementById('p_height').value);
-            userProfile.weight = parseFloat(document.getElementById('p_weight').value);
-            userProfile.habit = document.getElementById('p_habit').value;
-            
-            currentQuestion = 0;
-            scores = { body: 0, stamina: 0, mind: 0 };
-            progressContainer.classList.remove('hidden');
-            renderQuestion();
-        }
-
-        function renderQuestion() {
-            const q = questions[currentQuestion];
-            const progress = ((currentQuestion) / questions.length) * 100;
-            progressBar.style.width = `${progress}%`;
-
-            const html = `
-                <div class="m-auto w-full max-w-2xl flex flex-col justify-center min-h-[50vh]">
-                    <div class="mb-8">
-                        <div class="flex justify-between items-end mb-4">
-                            <span class="text-primary font-black text-2xl">Q${currentQuestion + 1}<span class="text-gray-400 text-lg"> / ${questions.length}</span></span>
-                            <span class="text-xs font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">${q.desc}</span>
-                        </div>
-                        <h2 class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed">${q.text}</h2>
-                    </div>
-                    
-                    <div class="space-y-3">
-                        ${[
-                            {val: 5, text: "非常に当てはまる", color: "bg-blue-50"},
-                            {val: 4, text: "やや当てはまる", color: "bg-white"},
-                            {val: 3, text: "どちらともいえない", color: "bg-white"},
-                            {val: 2, text: "あまり当てはまらない", color: "bg-white"},
-                            {val: 1, text: "全く当てはまらない", color: "bg-gray-50"}
-                        ].map(opt => `
-                            <button onclick="answerQuestion(${opt.val}, '${q.axis}')" class="choice-btn w-full text-left px-5 py-4 rounded-2xl text-gray-700 font-bold ${opt.color} shadow-sm flex items-center justify-between text-base md:text-lg border border-gray-200 group">
-                                <span>${opt.text}</span>
-                                <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center group-hover:border-primary group-hover:bg-primary transition-colors"></div>
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            render(html);
-        }
-
-        function answerQuestion(val, axis) {
-            scores[axis] += val;
-            currentQuestion++;
-            if (currentQuestion < questions.length) {
-                renderQuestion();
-            } else {
-                progressBar.style.width = '100%';
-                renderLoading();
-            }
-        }
-
-        function renderLoading() {
-            progressContainer.classList.add('hidden');
-            const html = `
-                <div class="m-auto text-center">
-                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-primary mb-6"></div>
-                    <h2 id="loadingText" class="text-2xl font-bold text-gray-800">データを解析中...</h2>
-                    <p class="text-gray-500 mt-2">12項目のデータから「からだカルテ」を生成しています</p>
-                </div>
-            `;
-            render(html, () => {
-                setTimeout(() => { document.getElementById('loadingText').innerText = "個別メニューを生成中..."; }, 1200);
-                setTimeout(() => { document.getElementById('loadingText').innerText = "処方箋を発行中..."; }, 2400);
-                setTimeout(renderDelivery, 3600);
-            });
-        }
-
-        function renderDelivery() {
-            const html = `
-                <div class="m-auto text-center">
-                    <div class="inline-flex items-center justify-center w-32 h-32 mb-8 bg-blue-50 text-primary rounded-full border-4 border-blue-100 pulse-slow cursor-pointer group shadow-inner" onclick="calculateResult()">
-                        <svg class="w-16 h-16 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
-                    <h2 class="text-3xl font-black text-gray-900 mb-4">処方箋が届きました！</h2>
-                    <p class="text-gray-500 mb-8">AIによる分析が完了し、あなた専用の<br>「からだカルテ運動処方箋」が発行されました。</p>
-                    <button onclick="calculateResult()" class="px-10 py-4 bg-primary text-white font-bold rounded-full text-lg shadow-lg hover:bg-primaryDark hover:scale-105 transition-all">
-                        処方箋を開封する
-                    </button>
-                </div>
-            `;
-            render(html);
-        }
-
-        function calculateResult() {
-            let bonus = 0;
-            if (userProfile.habit === "週1〜2回") bonus = 2;
-            if (userProfile.habit === "週3回以上") bonus = 4;
-
-            // 低運動層でもきれいに分岐するように調整
-            const bodyType = (scores.body + bonus) >= 11 ? 'H' : 'S';
-            const staminaType = (scores.stamina + bonus) >= 11 ? 'A' : 'R';
-            const mindType = scores.mind >= 11 ? 'C' : 'N';
-            
-            const resultKey = `${bodyType}${staminaType}${mindType}`;
-            renderPrescription(resultKey);
-        }
-
-        function renderPrescription(key) {
-            const data = resultsData[key] || resultsData["SRN"];
-            const heightM = userProfile.height / 100;
-            const bmi = parseFloat((userProfile.weight / (heightM * heightM)).toFixed(1));
-            const dateStr = new Date().toLocaleDateString('ja-JP');
-
-            // 厚労省ガイドラインに基づく年齢別の適正BMI範囲を算出
-            let bmiMin = 18.5;
-            let bmiMax = 24.9;
-            if (userProfile.age >= 50 && userProfile.age <= 64) {
-                bmiMin = 20.0;
-            } else if (userProfile.age >= 65 && userProfile.age <= 74) {
-                bmiMin = 21.5;
-            } else if (userProfile.age >= 75) {
-                bmiMin = 21.5;
-                bmiMax = 25.5;
-            }
-
-            // BMIバーグラフ上の位置をパーセンテージで計算 (15〜30の幅でマッピング)
-            const minRange = 14;
-            const maxRange = 30;
-            let bmiPos = ((bmi - minRange) / (maxRange - minRange)) * 100;
-            if(bmiPos < 0) bmiPos = 0;
-            if(bmiPos > 100)
+                feature: "激しいスポーツは苦手。お散歩感覚
