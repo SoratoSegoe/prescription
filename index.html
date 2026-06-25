@@ -29,7 +29,6 @@
     <style>
         body { background-color: #e2e8f0; }
         
-        /* アニメーションのバグを防ぐため、シンプルなフェードインに修正 */
         .fade-in-view {
             animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
@@ -86,57 +85,436 @@
         let currentQuestion = 0;
         let scores = { body: 0, stamina: 0, mind: 0 };
 
-        // エビデンス（サルコペニア・ロコモ・認知機能スクリーニング）に基づく12問
         const questions = [
-            { text: "手すりや机に手をつかずに、椅子から立ち上がることがスムーズにできる。", axis: "body", desc: "下肢筋力・バランス" },
+            { text: "手すりや机に手をつかずに、椅子から立ち上がることがスムーズにできる。", axis: "body", desc: "下肢筋力·バランス" },
             { text: "青信号のうちに、横断歩道を余裕を持って渡りきることができる。", axis: "body", desc: "歩行能力（移動速度）" },
-            { text: "ペットボトルのキャップを開けたり、重い引き出しを引く動作に苦労しない。", axis: "body", desc: "上肢筋力・握力目安" },
-            { text: "ここ1〜2年の間で、身長が2cm以上縮んだということはない。", axis: "body", desc: "骨密度・姿勢の関連" },
+            { text: "ペットボトルのキャップを開けたり、重い引き出しを引く動作に苦労しない。", axis: "body", desc: "上肢筋力·握力目安" },
+            { text: "ここ1〜2年の間で、身長が2cm以上縮んだということはない。", axis: "body", desc: "骨密度·姿勢の関連" },
             { text: "平らな道を自分のペースで15分以上続けて歩いても、息が苦しくなることはない。", axis: "stamina", desc: "有酸素運動の耐性" },
             { text: "階段を2階分（20〜30段）上ったあと、呼吸の乱れは1〜2分以内に落ち着く。", axis: "stamina", desc: "心肺機能の回復力" },
-            { text: "布団の上げ下ろしや、部屋全体の掃除機がけなどの家事で強い息切れはしない。", axis: "stamina", desc: "日常の活動量・労作性" },
-            { text: "少し遠くのスーパーや施設まで、乗り物を使わず歩いて行こうと思える体力の余裕がある。", axis: "stamina", desc: "スタミナの自覚・予備能" },
+            { text: "布団の上げ下ろしや、部屋全体の掃除機がけなどの家事で強い息切れはしない。", axis: "stamina", desc: "日常の活動量·労作性" },
+            { text: "少し遠くのスーパーや施設まで、乗り物を使わず歩いて行こうと思える体力の余裕がある。", axis: "stamina", desc: "スタミナの自覚·予備能" },
             { text: "昨日食べたもののメニューや、数日前の出来事をスムーズに思い出すことができる。", axis: "mind", desc: "エピソード記憶" },
-            { text: "テレビの音が鳴っているような環境でも、本を読んだり人の話を集中して理解できる。", axis: "mind", desc: "注意力・脳の選別能" },
-            { text: "今日が何曜日か、あるいは今年が何年かを、一瞬迷うことなくパッと答えられる。", axis: "mind", desc: "時間・場所の見当識" },
-            { text: "人から頼まれた3つ以上の買い物リストを、メモを見ずに記憶して買い揃えることができる。", axis: "mind", desc: "短期記憶・記銘力" }
+            { text: "テレビの音が鳴っているような環境でも、本を読んだり人の話を集中して理解できる。", axis: "mind", desc: "注意力·脳の選別能" },
+            { text: "今日が何曜日か、あるいは今年が何年かを、一瞬迷うことなくパッと答えられる。", axis: "mind", desc: "時間·場所の見当識" },
+            { text: "人から頼まれた3つ以上の買い物リストを、メモを見ずに記憶して買い揃えることができる。", axis: "mind", desc: "短期記憶·記銘力" }
         ];
 
         const resultsData = {
-            "HAC": { title: "トライアスリート", subtitle: "文武両道、タフで聡明な完全無欠タイプ",
-                feature: "筋肉・骨・スタミナのすべてが揃い、頭脳も明晰。ハードな状況にも対応できる「鉄人」です。",
-                menu: { mon: "高強度インターバル(HIIT)", tue: "アクティブレスト(ヨガ)", wed: "ウェイトトレーニング", thu: "休息日", fri: "新しいスポーツに挑戦", sat: "長距離ランニング", sun: "全身ストレッチ" },
-                advice: "現状の身体能力は非常に高いレベルにあります。更なる向上のため、使ったことのない筋肉を刺激する新しい競技への挑戦をおすすめします。"
+            "HAC": { 
+                title: "超効率フルスペック·エンジン", 
+                subtitle: "全機能が高水準。心身が完全に同調して動く理想状態",
+                reason: "骨格筋·スタミナ·脳の処理能のすべてで高いスコアを記録しています。これは、日頃の活動量が維持されており、身体を動かすための「命令の伝達（脳）」と「出力（筋肉）」、それを支える「循環（心肺）」の連携が非常にスムーズであることを証明しています。",
+                feature: "筋肉·骨·スタミナのすべてが揃い、頭脳も明晰。ハードな状況にも対応できるタフさを持ちます。",
+                menu: { mon: "早歩きウォーキング(30分)", tue: "自宅で自重スクワット(15回×2)", wed: "積極的休息(ストレッチ)", thu: "軽めのジョギング(20分)", fri: "バランス体幹トレーニング", sat: "しっかり歩行＋階段利用", sun: "全身のセルフマッサージ" },
+                advice: "現状の身体能力は非常に高いレベルにあります。更なる向上のため、使ったことのない筋肉を刺激する新しい運動習慣や、少しテンポの速いウォーキングをおすすめします。"
             },
-            "HAN": { title: "ラグビーフォワード", subtitle: "スタミナとパワーで突き進む切り込み隊長",
-                feature: "体力と突進力は群を抜いていますが、細かいことは気にしないおおらかな気質を持ちます。",
-                menu: { mon: "ジョギング", tue: "筋力トレーニング(体幹)", wed: "休息日", thu: "ステップ運動/エアロビ", fri: "アクティブレスト", sat: "チームスポーツ参加", sun: "脳トレ＋軽い散歩" },
-                advice: "身体のタフさは素晴らしいですが、脳の疲労感に気づきにくい傾向があります。複雑な動きを伴う運動で脳に心地よい刺激を与えましょう。"
+            "HAN": { 
+                title: "高トルク型インテリジェント·パワープラント", 
+                subtitle: "圧倒的な筋力とスタミナを誇る、大局的省エネタイプ",
+                reason: "身体的な強さ（骨格筋·心肺機能）が突出して高い一方、認知タスクの自覚スコアが標準値となっています。これは『脳が疲労を感じにくい、大らかな安定状態』にあることを示します。出力が高い分、無意識のうちに脳を省エネモードにしている状態です。",
+                feature: "体力と突進力は群を抜いていますが、細かいエネルギー消費を抑えて効率よく動く気質を持ちます。",
+                menu: { mon: "夕方のウォーキング(25分)", tue: "スクワット＆体幹キープ", wed: "完全休息日", thu: "ラジオ体操＋ステップ運動", fri: "軽めの散歩(15分)", sat: "少し遠くへ買い物歩行", sun: "脳トレゲーム＋軽いストレッチ" },
+                advice: "身体のタフさは素晴らしいですが、脳の疲労感に気づきにくい傾向があります。左右非対称の動きや、ステップを踏むなど「頭を使いながら身体を動かす」運動で脳に心地よい刺激を与えましょう。"
             },
-            "HRC": { title: "スプリンター", subtitle: "一瞬の爆発力と鋭い戦術で魅せるパワー型",
-                feature: "筋肉の出力が高く頭の回転も速いですが、持久力は長続きしにくいため、短時間で勝負をかけるタイプです。",
-                menu: { mon: "ダッシュ＆ウォーク", tue: "上半身ウェイト", wed: "完全休息日", thu: "下半身ウェイト", fri: "短時間スイミング", sat: "趣味のアクティビティ", sun: "入念なストレッチ" },
-                advice: "長時間のダラダラとした運動はストレスになります。「短時間で追い込み、しっかり休む」というメリハリのついたサイクルが最適です。"
+            "HRC": { 
+                title: "瞬間揮発型ハイパー·アクセラレーター", 
+                subtitle: "鋭い集中力と一瞬の出力で魅せる、高回転パワー型",
+                reason: "筋力と脳の冴え（認知機能）のスコアが非常に高い一方で、持続的なスタミナ（心肺機能）がやや控えめな数値です。これは短時間で高い集中力を発揮し、筋肉を爆発的に動かすのが得意な『高回転·短距離型』のメカニズムを持っている証拠です。",
+                feature: "筋肉の出力が高く頭の回転も速いですが、持久力は長続きしにくいため、短時間で効率よく活動するタイプです。",
+                menu: { mon: "メリハリ歩行(早歩き3分＋遅歩き3分を3セット)", tue: "上半身の筋トレ(腕立てなど)", wed: "完全休息日", thu: "下半身のスクワット", fri: "足踏み昇降(10分)", sat: "趣味のアクティビティ", sun: "入念なリラックスストレッチ" },
+                advice: "長時間のダラダラとした運動はストレスになりがちです。「短時間で集中して動き、しっかり休む」というメリハリのついたサイクルが、あなたの身体の性質に最も合っています。"
             },
-            "HRN": { title: "ウエイトリフター", subtitle: "無理せず一撃にかける省エネパワー",
-                feature: "骨格や筋力は頑丈ですが、息が上がる運動は苦手。普段は穏やかな省エネモードです。",
-                menu: { mon: "自体重スクワット", tue: "軽いウォーキング", wed: "休息日", thu: "タオルストレッチ", fri: "ラジオ体操", sat: "軽めの筋力トレ", sun: "リラックスヨガ" },
-                advice: "基礎的な力は十分に備わっています。まずは心肺機能に負担をかけすぎない、ゆっくりとしたペースの全身運動から習慣化しましょう。"
+            "HRN": { 
+                title: "静寂のヘビー·アンカー", 
+                subtitle: "強固な土台を内に秘めた、安定の省エネパワー",
+                reason: "骨格や筋肉の基礎力（下肢筋力など）は十分に保たれていますが、日常的な心肺負荷やマルチタスクの自覚が低い状態です。これは、激しい活動を避け、自身の強固な身体の土台を『守る』ためにエネルギーを内側に蓄えている状態です。",
+                feature: "骨格や筋力は頑丈ですが、息が上がる運動は苦手。普段は穏やかな省エネモードを維持しています。",
+                menu: { mon: "椅子スクワット(10回×2)", tue: "近所のゆったり散歩(15分)", wed: "完全休息日", thu: "バスタオルを使った背中伸ばし", fri: "ラジオ体操第一", sat: "家事の合間に踵（かかと）上げ下げ", sun: "椅子に座って足首回し" },
+                advice: "基礎的な骨組みや力は十分に備わっています。まずは心肺機能や脳に急な負担をかけすぎないよう、椅子を使った安全なスクワットや、ゆっくりとしたお散歩から身体の巡りを良くしていきましょう。"
             },
-            "SAC": { title: "ミッドフィルダー", subtitle: "抜群のスタミナでスマートに立ち回る司令塔",
-                feature: "体型は華奢ですがスタミナが抜群にあり、広い視野とフットワークの軽さが持ち味です。",
-                menu: { mon: "プッシュアップ＆腹筋", tue: "ロングジョギング", wed: "アクティブレスト", thu: "下半身強化(ランジ)", fri: "サイクリング", sat: "体幹トレーニング", sun: "休息・マッサージ" },
-                advice: "持久力と頭の回転の速さは完璧です。怪我を防ぐため、筋肉量と骨密度を高める「抗重力トレーニング」を多めに取り入れましょう。"
+            "SAC": { 
+                title: "巡航型スマート·ナビゲーター", 
+                subtitle: "軽快なフットワークと高い知性で動き続ける司令塔",
+                reason: "スタミナ（心肺機能）と脳の冴え（認知機能）が抜群に高い反面、絶対的な筋力スコアがやや控えめです。これは、余計なパワー（筋肉量）を削ぎ落とし、高い酸素摂取能力と適切な状況判断によって効率よく動き続ける『低燃費·長距離巡航型』の特性を表しています。",
+                feature: "体型は比較的華奢な傾向にありますが持久力があり、広い視野とフットワークの軽さが持ち味です。",
+                menu: { mon: "腕立て伏せ(膝つき10回)＆腹筋", tue: "自分のペースで長めウォーキング(30分)", wed: "積極的休息(ヨガ·柔軟)", thu: "下半身強化(ランジ動作)", fri: "自転車または足踏み運動", sat: "体幹キープ(プランク30秒)", sun: "しっかり入浴·休息" },
+                advice: "持久力と頭の回転の速さは完璧です。今後は年齢に伴う怪我や骨への負担を防ぐため、筋肉量と骨密度を維持·向上させる「ゆっくり深く行う自重トレーニング」を少し多めに取り入れると完璧です。"
             },
-            "SAN": { title: "ダンサー", subtitle: "リズム感抜群、楽しく動き回るリフレッシュ派",
-                feature: "筋力は控えめですが、スタミナがあり動くのが大好き。のびのびと身体を動かすのが得意です。",
-                menu: { mon: "ダンス・エアロビクス", tue: "ウォーキング", wed: "休息日", thu: "音楽に合わせて家事", fri: "ピラティス", sat: "ハイキング", sun: "ゆっくり入浴・柔軟" },
-                advice: "「辛いトレーニング」よりも「楽しいアクティビティ」が向いています。音楽を取り入れ、モチベーションを維持しながら基礎体力を養いましょう。"
+            "SAN": { 
+                title: "共鳴型アクティブ·エナジャイザー", 
+                subtitle: "感覚と連動する優れたスタミナを持つリフレッシュ派",
+                reason: "日常的に動き回るスタミナ（心肺機能）は高いレベルにありますが、筋力強化や細かい思考タスクへの意識が標準的です。これは、理論で身体をガチガチに固めるよりも、その場の環境や心地よさに共鳴して自然と活動量を高められる『感覚同調型』の特性を意味します。",
+                feature: "筋力は控えめですがスタミナがあり、動くことが苦になりません。のびのびと身体を動かすのが得意です。",
+                menu: { mon: "好きな音楽を聴きながら散歩(20分)", tue: "テレビを見ながら足踏み(10分)", wed: "完全休息日", thu: "音楽に合わせたノリノリ家事", fri: "全身を大きく伸ばすピラティス風ストレッチ", sat: "近くの公園までハイキング歩行", sun: "湯船でリラックス＋足裏ほぐし" },
+                advice: "「辛い義務的なトレーニング」よりも「楽しい、気持ちいいと思えるアクティビティ」が向いています。音楽や景色を取り入れ、楽しみながら自然と基礎筋力がつくウォーキングを継続しましょう。"
             },
-            "SRC": { title: "ゴルファー", subtitle: "緻密な計算と集中力で勝負する精密機械",
-                feature: "体力勝負より、冷静な分析力と高い集中力で効率よく身体をコントロールする知性派です。",
-                menu: { mon: "デスクワーク合間ストレッチ", tue: "1回5分のプチ筋トレ", wed: "姿勢改善エクササイズ", thu: "休息日", fri: "ウォーキング", sat: "バランスボール", sun: "マインドフルネス瞑想" },
-                advice: "頭脳労働による首や肩の緊張が懸念されます。激しい運動ではなく、姿勢を正し、血流を改善するためのこまめなストレッチがガイドとなります。"
+            "SRC": { 
+                title: "脳内シミュレーション型·精密プロセッサー", 
+                subtitle: "緻密な情報処理と高い集中力で身体を操る知性派",
+                reason: "認知機能（脳の選別能や短期記憶）のスコアが非常に高い一方で、骨格筋や心肺機能の日常的な発揮値が低めとなっています。これは、体力をゴリ押しで使うのではなく、脳内で効率的な動きを緻密に計算し、最小限のエネルギーで心身をコントロールしようとする『頭脳先導型』のメカニズムです。",
+                feature: "体力勝負よりも、冷静な分析力と高い集中力で効率よく身体をコントロールすることに秀でています。",
+                menu: { mon: "デスクワークの合間に首·肩ストレッチ", tue: "1回5分のプチスクワット(10回)", wed: "姿勢を正す背筋伸ばし", thu: "完全休息日", fri: "背筋を意識した通勤·買い物歩行", sat: "バランスボールまたは片足立ちキープ", sun: "マインドフルネス呼吸法(5分)" },
+                advice: "脳をフル活用する分、首や肩、背中の筋肉が緊張して固まりやすい傾向があります。激しい運動を始める必要はありません。まずは姿勢をリセットし、血流を改善するためのこまめなストレッチと、1回5分の軽い下肢運動が最適なガイドとなります。"
             },
-            "SRN": { title: "ウォーカー", subtitle: "心地よさを最優先する無理のない脱力系",
-                feature: "激しいスポーツは苦手。お散歩感覚
+            "SRN": { 
+                title: "超回復マインドフル·セイバー", 
+                subtitle: "心身への負担を徹底的に抑える、守護·エネルギー温存型",
+                reason: "骨格筋·心肺·認知のすべての自覚負荷が最も低エネルギーな状態を示しています。これは決して悪いことではなく、過剰なストレスや肉体疲労から心身を徹底的に『防御·温存』し、高い自己回復力を保とうとする生体防衛のメカニズムが働いている状態です。",
+                feature: "激しいスポーツは体力を削るため、お散歩感覚でゆったりと、心地よく身体を休めることを優先するマイペース派です。",
+                menu: { mon: "朝起きた時のベッドの上での伸び", tue: "近所を心地よいペースで10分お散歩", wed: "完全休息日（何もしない）", thu: "湯船にゆっくり浸かる(15分)", fri: "寝る前の軽いふくらはぎ柔軟", sat: "お出かけを兼ねた緩やかな歩行", sun: "深呼吸を意識したリラックスタイム" },
+                advice: "今は「運動」と身構える必要は一切ありません。あなたの身体はまず、リラックスして巡りを良くすることを求めています。日常生活の中で「少し深く呼吸する」「気持ちよく伸びをする」といった超低負荷な動作から、ゆっくりと身体を慣らしていきましょう。"
+            }
+        };
+
+        const contentDiv = document.getElementById('content');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+
+        function render(html, callback) {
+            contentDiv.innerHTML = `<div class="w-full fade-in-view">${html}</div>`;
+            if(callback) callback();
+        }
+
+        function renderStart() {
+            progressContainer.classList.add('hidden');
+            const html = `
+                <div class="text-center max-w-2xl mx-auto py-4">
+                    <span class="inline-block py-1 px-3 rounded-full bg-blue-100 text-primary text-sm font-bold tracking-widest mb-6">PHYSICAL & MIND ANALYSIS</span>
+                    <h1 class="text-3xl md:text-5xl font-black text-gray-900 mb-6 leading-tight tracking-tight">
+                        からだカルテ診断<br><span class="text-primary">個別運動プログラム</span>提案
+                    </h1>
+                    <p class="text-gray-500 mb-10 text-base md:text-lg leading-relaxed">
+                        12個の科学的質問と基本情報から、あなたの「筋骨格·心肺·認知機能」を多角的に分析。<br class="hidden md:block">
+                        8つの身体特性分類に基づく、<b>あなた専用の「からだカルテ」</b>をその場で作成します。
+                    </p>
+                    <button onclick="renderProfile()" class="group relative inline-flex items-center justify-center w-full md:w-auto px-12 py-5 text-lg font-bold text-white transition-all duration-200 bg-primary rounded-full hover:bg-primaryDark hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        分析をはじめる
+                        <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                </div>
+            `;
+            render(html);
+        }
+
+        function renderProfile() {
+            const html = `
+                <div class="w-full max-w-xl mx-auto py-4">
+                    <div class="mb-8 text-center">
+                        <h2 class="text-2xl font-bold text-gray-900">基本情報の入力</h2>
+                        <p class="text-gray-500 text-sm mt-2">より正確なカルテ分析とBMIデータ算出のために使用します。</p>
+                    </div>
+                    <form id="profileForm" onsubmit="submitProfile(event)" class="space-y-6 bg-surface p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">年齢</label>
+                                <div class="relative">
+                                    <input type="number" id="p_age" required min="18" max="120" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-lg" placeholder="例: 55">
+                                    <span class="absolute right-4 top-3.5 text-gray-400">歳</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">性別</label>
+                                <select id="p_gender" required class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-lg bg-white">
+                                    <option value="">選択...</option>
+                                    <option value="男性">男性</option>
+                                    <option value="女性">女性</option>
+                                    <option value="その他">その他/回答しない</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">身長</label>
+                                <div class="relative">
+                                    <input type="number" id="p_height" required min="100" max="250" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-lg" placeholder="例: 165">
+                                    <span class="absolute right-4 top-3.5 text-gray-400">cm</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">体重</label>
+                                <div class="relative">
+                                    <input type="number" id="p_weight" required min="30" max="200" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-lg" placeholder="例: 60">
+                                    <span class="absolute right-4 top-3.5 text-gray-400">kg</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">現在の運動習慣</label>
+                            <select id="p_habit" required class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-lg bg-white">
+                                <option value="">選択してください</option>
+                                <option value="全くなし">全くなし</option>
+                                <option value="週1〜2回">週1〜2回程度</option>
+                                <option value="週3回以上">週3回以上</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-xl shadow-md transition-colors text-lg mt-4">
+                            診断へ進む
+                        </button>
+                    </form>
+                </div>
+            `;
+            render(html);
+        }
+
+        function submitProfile(e) {
+            e.preventDefault();
+            userProfile.age = parseInt(document.getElementById('p_age').value);
+            userProfile.gender = document.getElementById('p_gender').value;
+            userProfile.height = parseFloat(document.getElementById('p_height').value);
+            userProfile.weight = parseFloat(document.getElementById('p_weight').value);
+            userProfile.habit = document.getElementById('p_habit').value;
+            
+            currentQuestion = 0;
+            scores = { body: 0, stamina: 0, mind: 0 };
+            progressContainer.classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            const html = `
+                <div class="w-full max-w-2xl mx-auto flex flex-col justify-center min-h-[50vh] py-4">
+                    <div class="mb-8">
+                        <div class="flex justify-between items-end mb-4">
+                            <span class="text-primary font-black text-2xl">Q${currentQuestion + 1}<span class="text-gray-400 text-lg"> / ${questions.length}</span></span>
+                            <span class="text-xs font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">${q.desc}</span>
+                        </div>
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed">${q.text}</h2>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        ${[
+                            {val: 5, text: "非常に当てはまる", color: "bg-blue-50"},
+                            {val: 4, text: "やや当てはまる", color: "bg-white"},
+                            {val: 3, text: "どちらともいえない", color: "bg-white"},
+                            {val: 2, text: "あまり当てはまらない", color: "bg-white"},
+                            {val: 1, text: "全く当てはまらない", color: "bg-gray-50"}
+                        ].map(opt => `
+                            <button onclick="answerQuestion(${opt.val}, '${q.axis}')" class="choice-btn w-full text-left px-5 py-4 rounded-2xl text-gray-700 font-bold ${opt.color} shadow-sm flex items-center justify-between text-base md:text-lg border border-gray-200 group">
+                                <span>${opt.text}</span>
+                                <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center group-hover:border-primary group-hover:bg-primary transition-colors"></div>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            render(html);
+        }
+
+        function answerQuestion(val, axis) {
+            scores[axis] += val;
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                renderQuestion();
+            } else {
+                progressBar.style.width = '100%';
+                renderLoading();
+            }
+        }
+
+        function renderLoading() {
+            progressContainer.classList.add('hidden');
+            const html = `
+                <div class="text-center py-12 mx-auto">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-primary mb-6"></div>
+                    <h2 id="loadingText" class="text-2xl font-bold text-gray-800">データを解析中...</h2>
+                    <p class="text-gray-500 mt-2">12項目のデータから「からだカルテ」を生成しています</p>
+                </div>
+            `;
+            render(html, () => {
+                setTimeout(() => { document.getElementById('loadingText').innerText = "個別メニューを生成中..."; }, 1200);
+                setTimeout(() => { document.getElementById('loadingText').innerText = "からだカルテを作成中..."; }, 2400);
+                setTimeout(renderDelivery, 3600);
+            });
+        }
+
+        function renderDelivery() {
+            const html = `
+                <div class="text-center py-8 mx-auto">
+                    <div class="inline-flex items-center justify-center w-32 h-32 mb-8 bg-blue-50 text-primary rounded-full border-4 border-blue-100 pulse-slow cursor-pointer group shadow-inner" onclick="calculateResult()">
+                        <svg class="w-16 h-16 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-3xl font-black text-gray-900 mb-4">からだカルテが完成しました！</h2>
+                    <p class="text-gray-500 mb-8">AIによる分析が完了し、あなた専用の<br>「からだカルテ運動プログラム案内」が発行されました。</p>
+                    <button onclick="calculateResult()" class="px-10 py-4 bg-primary text-white font-bold rounded-full text-lg shadow-lg hover:bg-primaryDark hover:scale-105 transition-all">
+                        カルテを確認する
+                    </button>
+                </div>
+            `;
+            render(html);
+        }
+
+        function calculateResult() {
+            let bonus = 0;
+            if (userProfile.habit === "週1〜2回") bonus = 2;
+            if (userProfile.habit === "週3回以上") bonus = 4;
+
+            const bodyType = (scores.body + bonus) >= 11 ? 'H' : 'S';
+            const staminaType = (scores.stamina + bonus) >= 11 ? 'A' : 'R';
+            const mindType = scores.mind >= 11 ? 'C' : 'N';
+            
+            const resultKey = `${bodyType}${staminaType}${mindType}`;
+            renderPrescription(resultKey);
+        }
+
+        function renderPrescription(key) {
+            const data = resultsData[key] || resultsData["SRN"];
+            const heightM = userProfile.height / 100;
+            const bmi = parseFloat((userProfile.weight / (heightM * heightM)).toFixed(1));
+            const dateStr = new Date().toLocaleDateString('ja-JP');
+
+            let bmiMin = 18.5;
+            let bmiMax = 24.9;
+            if (userProfile.age >= 50 && userProfile.age <= 64) {
+                bmiMin = 20.0;
+            } else if (userProfile.age >= 65 && userProfile.age <= 74) {
+                bmiMin = 21.5;
+            } else if (userProfile.age >= 75) {
+                bmiMin = 21.5;
+                bmiMax = 25.5;
+            }
+
+            const minRange = 14;
+            const maxRange = 30;
+            let bmiPos = ((bmi - minRange) / (maxRange - minRange)) * 100;
+            if(bmiPos < 0) bmiPos = 0;
+            if(bmiPos > 100) bmiPos = 100;
+
+            const targetLeft = ((bmiMin - minRange) / (maxRange - minRange)) * 100;
+            const targetWidth = ((bmiMax - bmiMin) / (maxRange - minRange)) * 100;
+
+            let bmiStatusText = "目標範囲内（適正）";
+            let bmiTextColor = "text-green-600";
+            if (bmi < bmiMin) {
+                bmiStatusText = "目標以下（低体重·筋肉量減少に注意）";
+                bmiTextColor = "text-amber-500";
+            } else if (bmi > bmiMax) {
+                bmiStatusText = "目標以上（過体重·生活習慣に注意）";
+                bmiTextColor = "text-red-500";
+            }
+
+            const html = `
+                <div class="max-w-4xl w-full mx-auto py-2">
+                    <div class="prescription-paper border border-gray-200 rounded-lg p-4 md:p-10 relative overflow-hidden text-gray-800">
+                        
+                        <div class="border-b-4 border-gray-800 pb-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2">
+                            <div>
+                                <h1 class="text-2xl md:text-4xl font-black tracking-widest text-gray-900">からだカルテ診断結果</h1>
+                                <p class="font-mono text-gray-500 text-xs md:text-sm mt-1">PERSONAL EXERCISE REPORT</p>
+                            </div>
+                            <div class="text-left sm:text-right w-full sm:w-auto">
+                                <p class="font-mono text-xs md:text-sm text-gray-600">発行日: ${dateStr}</p>
+                                <p class="font-mono text-xs md:text-sm text-gray-600">ID: ${Math.floor(Math.random() * 10000000).toString().padStart(8, '0')}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-4 mb-6 bg-surface p-4 rounded-lg border border-gray-200 text-center sm:text-left">
+                            <div><p class="text-xs text-gray-500 font-bold">年齢</p><p class="text-base md:text-lg font-mono font-bold">${userProfile.age}<span class="text-sm">歳</span></p></div>
+                            <div><p class="text-xs text-gray-500 font-bold">性別</p><p class="text-base md:text-lg font-bold">${userProfile.gender}</p></div>
+                            <div><p class="text-xs text-gray-500 font-bold">身長</p><p class="text-base md:text-lg font-mono font-bold">${userProfile.height}<span class="text-sm">cm</span></p></div>
+                            <div><p class="text-xs text-gray-500 font-bold">体重</p><p class="text-base md:text-lg font-mono font-bold">${userProfile.weight}<span class="text-sm">kg</span></p></div>
+                            <div class="col-span-3 md:col-span-1"><p class="text-xs text-gray-500 font-bold">あなたの現在のBMI</p><p class="text-base md:text-lg font-mono font-bold text-primary">${bmi}</p></div>
+                        </div>
+
+                        <div class="mb-8 bg-surface p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-xs font-bold text-gray-700">■ 厚労省ガイドラインに基づく年齢別·目標BMI分析</h4>
+                                <span class="text-xs font-bold ${bmiTextColor}">${bmiStatusText}</span>
+                            </div>
+                            <div class="relative w-full bg-gray-200 h-6 rounded-full overflow-visible mb-2">
+                                <div class="absolute h-6 bg-green-500 bg-opacity-40" style="left: ${targetLeft}%; width: ${targetWidth}%;"></div>
+                                <div class="absolute w-1.5 h-8 bg-blue-600 rounded-full top-1/2 -translate-y-1/2 z-10 shadow" style="left: calc(${bmiPos}% - 3px);">
+                                    <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-mono px-1.5 py-0.5 rounded shadow whitespace-nowrap">現在値: ${bmi}</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-gray-400 font-mono px-1">
+                                <span>14 (やせ)</span>
+                                <span style="margin-left: calc(${targetLeft}% - 20px)">目標下限: ${bmiMin}</span>
+                                <span style="margin-right: calc(${(100 - targetLeft - targetWidth)}% - 20px)">目標上限: ${bmiMax}</span>
+                                <span>30 (肥満)</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 mt-2 leading-relaxed">※厚生労働省「日本人の食事摂取基準」に準拠。中年期以降はフレイル·筋肉量減少リスクを予防するため、年齢とともに適切なBMIの下限値が引き上げられます。</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                            <div>
+                                <h3 class="text-xs font-bold text-gray-400 mb-2 border-b border-gray-300 pb-1">■ あなたの身体特性タイプ</h3>
+                                <p class="text-xs md:text-sm font-bold text-primary mb-1">${data.subtitle}</p>
+                                <h2 class="text-xl md:text-2xl font-black mb-4 text-gray-900">${data.title}</h2>
+                                <p class="text-sm leading-relaxed text-gray-700 mb-4">${data.feature}</p>
+                                
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                    <h4 class="text-xs font-bold text-gray-800 mb-1">💡 なぜこのタイプ判定になったのか？（根拠）</h4>
+                                    <p class="text-xs text-gray-600 leading-relaxed">${data.reason}</p>
+                                </div>
+                            </div>
+                            <div class="space-y-4 pt-4 md:pt-0">
+                                <h3 class="text-xs font-bold text-gray-400 mb-2 border-b border-gray-300 pb-1">■ 3大機能の現在値</h3>
+                                <div>
+                                    <div class="flex justify-between text-xs font-bold mb-1"><span class="text-gray-600">骨格筋 (からだの力強さ·立ち上がり能力)</span><span class="font-mono">${scores.body}/20</span></div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width: ${(scores.body/20)*100}%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs font-bold mb-1"><span class="text-gray-600">心肺機能 (スタミナ·日常の息切れしにくさ)</span><span class="font-mono">${scores.stamina}/20</span></div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-green-500 h-2 rounded-full" style="width: ${(scores.stamina/20)*100}%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs font-bold mb-1"><span class="text-gray-600">認知機能 (脳の冴え·注意力·記憶の引き出し)</span><span class="font-mono">${scores.mind}/20</span></div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-purple-500 h-2 rounded-full" style="width: ${(scores.mind/20)*100}%"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="text-xs font-bold text-gray-400 mb-4 border-b border-gray-300 pb-1">■ あなたに的確に組まれた1週間の運動ガイド</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 mb-8">
+                            ${Object.entries({月:'mon',火:'tue',水:'wed',木:'thu',金:'fri',土:'sat',日:'sun'}).map(([day, key]) => `
+                                <div class="border border-gray-200 rounded p-2 text-center bg-white shadow-sm">
+                                    <div class="text-xs font-bold text-gray-500 mb-1 border-b pb-1">${day}</div>
+                                    <div class="text-[11px] font-bold text-gray-800 leading-tight min-h-[32px] flex items-center justify-center">${data.menu[key]}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="relative bg-blue-50 border border-blue-100 p-4 md:p-6 rounded-lg">
+                            <h3 class="text-xs md:text-sm font-bold text-primary mb-2">■ 今後のアクションアドバイス</h3>
+                            <p class="text-xs md:text-sm text-gray-800 leading-relaxed font-medium mb-4 sm:mb-0">${data.advice}</p>
+                            <div class="static sm:absolute bottom-4 right-4 text-right sm:text-left"><span class="stamp">分析完了</span></div>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-8 bg-emerald-50 border border-emerald-100 p-6 rounded-2xl shadow-sm text-center max-w-2xl m-auto">
+                        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <h4 class="text-emerald-900 font-bold text-base mb-1">からだを動かし、まいにちを豊かに。</h4>
+                        <p class="text-emerald-700 text-xs md:text-sm leading-relaxed mb-4">
+                            現在、皆様の日々の生活が、無理のない運動をきっかけに豊かで活力あるものになるよう、一人ひとりに寄り添う個別サポートサービスを準備中です。準備が整い次第、こちらのLINE公式アカウントより最優先でご案内いたします。どうぞ楽しみにお待ちください！
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                            <div class="bg-gray-400 text-white font-bold py-3 px-8 rounded-xl text-sm flex items-center justify-center cursor-not-allowed opacity-80">
+                                プレミアム配信サービス準備中
+                            </div>
+                            <button onclick="renderStart()" class="bg-white border border-gray-300 text-gray-600 font-bold py-3 px-6 rounded-xl text-sm hover:bg-gray-50 transition-colors">
+                                最初からやり直す
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+            render(html);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderStart();
+        });
+    </script>
+</body>
+</html>
